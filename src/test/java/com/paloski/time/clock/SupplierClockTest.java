@@ -150,6 +150,97 @@ public class SupplierClockTest {
 			Clock clock = SupplierClock.ofInstantSupplier(instantSupplier, ZoneId.systemDefault());
 			clock.instant();
 		}
+		
+		@Test
+		public void clockIsSerializableIfInstantSupplierIs() throws IOException {
+			Supplier<Instant> instantSupplier = (Serializable & Supplier<Instant>) () -> Instant.now();
+			ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream());
+			try {
+				oos.writeObject(instantSupplier);
+			} catch (ObjectStreamException exp) {
+				fail("Precondition failed: could not serialize supplier");
+			}
+			
+			Clock clock = SupplierClock.ofInstantSupplier(instantSupplier, ZoneId.systemDefault());
+			
+			try {
+				oos.writeObject(clock);
+			} catch (ObjectStreamException exp) {
+				fail("Could not serialize CalendarSupplierClock even though the Supplier was serializable");
+			}
+		}
+		
+		@Test
+		public void clockIsNotSerializableIfInstantSupplierIsnt() throws IOException {
+			Supplier<Instant> instantSupplier = (Supplier<Instant>) () -> Instant.now();
+			ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream());
+			boolean serializationFailed = false;
+			try {
+				oos.writeObject(instantSupplier);
+			} catch (ObjectStreamException exp) {
+				serializationFailed = true;
+			}
+			
+			if(!serializationFailed) {
+				fail("Test precondition failed: Lambda was successfully serialized");
+			}
+			
+			Clock clock = SupplierClock.ofInstantSupplier(instantSupplier, ZoneId.systemDefault());
+			
+			try {
+				oos.writeObject(clock);
+			} catch (ObjectStreamException exp) {
+				//Serialization succeeded, return out.
+				return;
+			}
+			fail("Successfully serialized clock based upon non-serializable lambda, this should not succeed");
+		}
+		
+		@Test
+		public void clockIsSerializableIfMillisSupplierIs() throws IOException {
+			LongSupplier milliSupplier = (Serializable & LongSupplier) System::currentTimeMillis;
+			ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream());
+			try {
+				oos.writeObject(milliSupplier);
+			} catch (ObjectStreamException exp) {
+				fail("Precondition failed: could not serialize supplier");
+			}
+			
+			Clock clock = SupplierClock.ofMillisecondSupplier(milliSupplier, ZoneId.systemDefault());
+			
+			try {
+				oos.writeObject(clock);
+			} catch (ObjectStreamException exp) {
+				fail("Could not serialize CalendarSupplierClock even though the Supplier was serializable");
+			}
+		}
+		
+		@Test
+		public void clockIsNotSerializableIfMillisSupplierIsnt() throws IOException {
+			LongSupplier milliSupplier = (LongSupplier) System::currentTimeMillis;
+			ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream());
+			boolean serializationFailed = false;
+			try {
+				oos.writeObject(milliSupplier);
+			} catch (ObjectStreamException exp) {
+				serializationFailed = true;
+			}
+			
+			if(!serializationFailed) {
+				fail("Test precondition failed: Lambda was successfully serialized");
+			}
+			
+			Clock clock = SupplierClock.ofMillisecondSupplier(milliSupplier, ZoneId.systemDefault());
+			
+			try {
+				oos.writeObject(clock);
+			} catch (ObjectStreamException exp) {
+				//Serialization succeeded, return out.
+				return;
+			}
+			fail("Successfully serialized clock based upon non-serializable lambda, this should not succeed");
+		}
+		
 	}
 	
 	

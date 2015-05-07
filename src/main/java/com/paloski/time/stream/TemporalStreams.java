@@ -22,12 +22,9 @@ import java.util.stream.StreamSupport;
  * A class that contains a number of static utilities for creating a Stream of
  * Temporal Objects.
  * <p>
- * Streams of Temporal objects can be created via the start methods in this
- * class, or through use of a {@link TemporalStreamBuilder}.
- * 
- * <p>
- * The Streams created from the static methods in this class will all contain
- * the following properties, unless otherwise specified:
+ * The Streams created from the static methods in this class, or from a
+ * {@link TemporalStreamBuilder builder}, will all contain the following
+ * properties, unless otherwise specified:
  * <ul>
  * <li>The streams will create elements lazily. That is to say that elements
  * will be created on an as-needed basis, so operations that terminate early
@@ -49,7 +46,7 @@ public class TemporalStreams {
 
 	/**
 	 * Creates a Stream that streams over every day, in the ISO chronology, from
-	 * January 1st, <i>year</i> until December 31st, <i>year</i>.
+	 * January 1st, {@code year} until December 31st, {@code year}.
 	 * <p>
 	 * The first element of the resulting stream will be a LocalDate object
 	 * representing January 1st, {@code year}, and the last element will be
@@ -93,8 +90,7 @@ public class TemporalStreams {
 	 * chronology.
 	 * <p>
 	 * The resulting stream will iterate over the set of YearMonth objects
-	 * occurring between {@code YearMonth.of(year.getValue(), 1)} and
-	 * {@code YearMonth.of(year.getValue() + 1, 1)}
+	 * occurring between January in {@code year} and January in {@code year + 1}.
 	 * 
 	 * @param year
 	 *            The year to evaluate YearMonths in
@@ -111,9 +107,11 @@ public class TemporalStreams {
 	}
 
 	/**
-	 * Creates a Stream that iterates over all hours in a given day, in the form
-	 * of LocalDateTime objects, from midnight on {@code day} until midnight of
-	 * the next day (excluded from stream).
+	 * Creates a Stream that iterates over all hours in a specific day,
+	 * represented by {@code day}.
+	 * <p>
+	 * The created Stream iterators from midnight on {@code day} until midnight
+	 * of the next day (excluded from stream).
 	 * 
 	 * @param day
 	 *            The day that should have its hours iterated over.
@@ -131,8 +129,10 @@ public class TemporalStreams {
 
 	/**
 	 * Creates a Stream that iterates over all hours in any day of the ISO
-	 * calendar, in the form of LocalTime objects. Iterating (in order) from
-	 * Midnight to Midnight (excluded from the stream).
+	 * Chronology.
+	 * <p>
+	 * The created Stream iterates (in order) from Midnight to Midnight
+	 * (excluded from the stream).
 	 * 
 	 * @return A new Stream that iterates over all hours in any day.
 	 */
@@ -172,9 +172,10 @@ public class TemporalStreams {
 
 	/**
 	 * A Builder class for creating a Stream that ranges between two points in
-	 * Time, incrementing a set amount for each entry. This builder has three
-	 * essential methods that <em>must</em> be called before a building
-	 * operation can be called:
+	 * Time, incrementing a set amount for each entry.
+	 * <p>
+	 * This builder has three essential methods that <em>must</em> be called
+	 * before a building operation can be called:
 	 * <ul>
 	 * <li>{@link #every(TemporalAmount)} to set the amount of time between each
 	 * entry the stream can take</li>
@@ -372,8 +373,7 @@ public class TemporalStreams {
 		 *         {@link #until(Temporal)} (exclusive).
 		 */
 		public Stream<T> stream() {
-			return StreamSupport.stream(
-					new TemporalSpliterator<T>(mStartingPoint, mEndingPoint, mIncrementAmount), false);
+			return StreamSupport.stream(new TemporalSpliterator<T>(mStartingPoint, mEndingPoint, mIncrementAmount), false);
 		}
 
 		/**
@@ -394,8 +394,7 @@ public class TemporalStreams {
 		 *         {@link #until(Temporal)} (exclusive).
 		 */
 		public Stream<T> parallelStream() {
-			return StreamSupport.stream(
-					new TemporalSpliterator<T>(mStartingPoint, mEndingPoint, mIncrementAmount), true);
+			return StreamSupport.stream(new TemporalSpliterator<T>(mStartingPoint, mEndingPoint, mIncrementAmount), true);
 		}
 
 	}

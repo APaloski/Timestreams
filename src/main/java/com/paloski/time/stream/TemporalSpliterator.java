@@ -24,14 +24,11 @@ import com.paloski.time.TemporalUtils;
  * objects created can be severely reduced.
  * 
  * <h3>Inexact point breaking</h3>
- * TemporalSpliterators can be created with an inexact amount and will treat that inexact section 
- * 
- * 
- * , for instance
- * starting on June 5th, 2015 and ending on June 14th, 2015, incrementing by
- * three days. This will result in an inexact break, where the 5th, 8th and 12th
- * are included, but no future days are because the 14th is <em>not</em> at
- * least three days away.
+ * TemporalSpliterators can be created with an inexact amount and will treat
+ * that inexact section, for instance starting on June 5th, 2015 and ending on
+ * June 14th, 2015, incrementing by three days. This will result in an inexact
+ * break, where the 5th, 8th and 12th are included, but no future days are
+ * because the 14th is <em>not</em> at least three days away.
  * 
  * 
  * @author apaloski
@@ -41,8 +38,6 @@ import com.paloski.time.TemporalUtils;
  *            used by this Spliterator. Note that this type is required to be
  *            Comparable, as required by {@link Temporal}
  */
-// TODO Temporal is required to be Comparable, should we simply require it here
-// or leave it as a deeper implementation detail?
 public final class TemporalSpliterator<T extends Temporal & Comparable<? super T>> implements Spliterator<T> {
 
 	private final T mStartingPoint;
@@ -52,9 +47,12 @@ public final class TemporalSpliterator<T extends Temporal & Comparable<? super T
 	private final TemporalAmount mIncrementAmount;
 
 	/**
-	 * A protected constructor that forces users of this class to go through
-	 * factory methods instead so that we can indirectly expose
-	 * comparable/non-comparable spliterators.
+	 * Constructs a new TemporalSpliterator that iterates on a set increment
+	 * between an inclusive starting point and exclusive ending point.
+	 * <p>
+	 * The TemporalSpliterator created will start at
+	 * {@code startingPointInclusive} and end at {@code endingPointExclusive},
+	 * iterating over every {@code increment} between them.
 	 * 
 	 * @param startingPointInclusive
 	 *            The temporal starting point of this Spliterator, this value is
@@ -66,13 +64,10 @@ public final class TemporalSpliterator<T extends Temporal & Comparable<? super T
 	 *            The amount to increment the current time point each time that
 	 *            {@link #tryAdvance(Consumer)} is called.
 	 */
-	protected TemporalSpliterator(T startingPointInclusive, T endingPointExclusive, TemporalAmount increment) {
-		mStartingPoint = Objects.requireNonNull(startingPointInclusive,
-				"The starting point of a TemporalSpliterator may not be null");
-		mEndingPoint = Objects.requireNonNull(endingPointExclusive,
-				"The ending point of a TemporalSpliterator may not be null");
-		mIncrementAmount = Objects.requireNonNull(increment,
-				"The incrementing amount of a TemporalSpliterator may not be null");
+	public TemporalSpliterator(T startingPointInclusive, T endingPointExclusive, TemporalAmount increment) {
+		mStartingPoint = Objects.requireNonNull(startingPointInclusive, "The starting point of a TemporalSpliterator may not be null");
+		mEndingPoint = Objects.requireNonNull(endingPointExclusive, "The ending point of a TemporalSpliterator may not be null");
+		mIncrementAmount = Objects.requireNonNull(increment, "The incrementing amount of a TemporalSpliterator may not be null");
 
 		/*
 		 * First we need to validate our arguments besides the normal non-null
@@ -96,17 +91,15 @@ public final class TemporalSpliterator<T extends Temporal & Comparable<? super T
 		// will be reusing them.
 		if (!startingPointInclusive.isSupported(smallestPrecisionInIncrement)
 				|| !endingPointExclusive.isSupported(smallestPrecisionInIncrement)) {
-			throw new IllegalArgumentException(
-					"The type of starting point or ending point does not support the temporal unit "
-							+ smallestPrecisionInIncrement + " that makes up part of increment");
+			throw new IllegalArgumentException("The type of starting point or ending point does not support the temporal unit "
+					+ smallestPrecisionInIncrement + " that makes up part of increment");
 		}
 
 		mIncrementAmountsSmallestUnit = smallestPrecisionInIncrement;
 
 		// Check we have some smallest precision point...
 		if (smallestPrecisionInIncrement == null) {
-			throw new IllegalArgumentException("TemporalAmount " + increment
-					+ " must have a value for a unit it supports");
+			throw new IllegalArgumentException("TemporalAmount " + increment + " must have a value for a unit it supports");
 		}
 		mCurrentPoint = mStartingPoint;
 	}
@@ -130,12 +123,10 @@ public final class TemporalSpliterator<T extends Temporal & Comparable<? super T
 		// Below dupes code in estimate size, but we need each of these
 		// variables
 		long durationUntilEndInSmallestUnitAmount = mIncrementAmountsSmallestUnit.between(mCurrentPoint, mEndingPoint);
-		double amountOfSmallestUnitInIncrement = TemporalUtils.getEstimatedNumberOfUnits(mIncrementAmount,
-				mIncrementAmountsSmallestUnit);
+		double amountOfSmallestUnitInIncrement = TemporalUtils.getEstimatedNumberOfUnits(mIncrementAmount, mIncrementAmountsSmallestUnit);
 
 		// For more information on why we ceil this, see estimateSize
-		long numberOfEntiresUntilEnd = (long) Math.ceil(durationUntilEndInSmallestUnitAmount
-				/ amountOfSmallestUnitInIncrement);
+		long numberOfEntiresUntilEnd = (long) Math.ceil(durationUntilEndInSmallestUnitAmount / amountOfSmallestUnitInIncrement);
 
 		if (numberOfEntiresUntilEnd <= 1) {
 			return null;
@@ -155,8 +146,7 @@ public final class TemporalSpliterator<T extends Temporal & Comparable<? super T
 	@Override
 	public long estimateSize() {
 		long durationUntilEnd = mIncrementAmountsSmallestUnit.between(mCurrentPoint, mEndingPoint);
-		double amountOfSmallestUnitInIncrement = TemporalUtils.getEstimatedNumberOfUnits(mIncrementAmount,
-				mIncrementAmountsSmallestUnit);
+		double amountOfSmallestUnitInIncrement = TemporalUtils.getEstimatedNumberOfUnits(mIncrementAmount, mIncrementAmountsSmallestUnit);
 		double numberOfEntiresUntilEnd = durationUntilEnd / amountOfSmallestUnitInIncrement;
 
 		// @formatter:off
@@ -215,9 +205,8 @@ public final class TemporalSpliterator<T extends Temporal & Comparable<? super T
 		// This special logic is needed to handle the case of cyclical cases,
 		// such as going every hour from midnight to midnight. There may be a
 		// better implementation but this gets the job done.
-		if (mIncrementAmountsSmallestUnit.between(mCurrentPoint, mEndingPoint) < TemporalUtils
-				.getEstimatedNumberOfUnits(
-						mIncrementAmount, mIncrementAmountsSmallestUnit)) {
+		if (mIncrementAmountsSmallestUnit.between(mCurrentPoint, mEndingPoint) < TemporalUtils.getEstimatedNumberOfUnits(mIncrementAmount,
+				mIncrementAmountsSmallestUnit)) {
 			return mEndingPoint;
 		} else {
 			return (T) mCurrentPoint.plus(mIncrementAmount);

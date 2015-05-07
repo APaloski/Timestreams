@@ -9,19 +9,18 @@ import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 /**
- * A SupplierClock is a Clock that is specialized to use an underlying
- * {@link Supplier} or {@link LongSupplier} as its time data source for the
- * methods {@link #millis()} or {@link #instant()}.
+ * A Clock that is specialized to use an underlying {@link Supplier} or
+ * {@link LongSupplier} as its time data source.
  * <p>
  * A SupplierClock is entirely based upon the Supplier passed in from the
  * {@link #ofInstantSupplier(Supplier, ZoneId)} or
- * {@link #ofMillisecondSupplier(LongSupplier, ZoneId)} methods, all of the
+ * {@link #ofMillisecondSupplier(LongSupplier, ZoneId)} methods. All of the
  * times obtained from this clock are based upon the return values of those
  * suppliers. As the core of this class is based upon a Supplier, that Supplier
  * <b>must</b> ensure thread safety to hold to the contract of {@link Clock}.
  * <p>
- * As any Supplier can be used to supply this method, it is easy to recreate
- * Clocks such as {@link Clock#system(ZoneId)} by calling
+ * Any Supplier can be used as the data source to this method, so it is easy to
+ * recreate Clocks such as {@link Clock#system(ZoneId)} by calling
  * 
  * <pre>
  * {@code SupplierClock.ofMillisecondSupplier(System::currentTimeMillis, ZoneId);}
@@ -34,7 +33,7 @@ import java.util.function.Supplier;
  * </pre>
  * <p>
  * This implementation of Clock is immutable, thread-safe and
- * {@code Serializable} provided that the underlying Supplier is.
+ * {@code Serializable}, provided that the underlying Supplier is.
  * 
  * @author Adam Paloski
  *
@@ -108,6 +107,11 @@ public final class SupplierClock extends Clock implements Serializable {
 
 	@Override
 	public SupplierClock withZone(ZoneId zone) {
+		// Easy early out
+		if (zone.equals(getZone())) {
+			return this;
+		}
+
 		if (mMillisSupplier != null) {
 			return new SupplierClock(mMillisSupplier, mZoneId);
 		} else {
@@ -131,21 +135,21 @@ public final class SupplierClock extends Clock implements Serializable {
 
 	/**
 	 * Creates a new Clock that has the time it returns based upon a Supplier
-	 * that returns the current number of milliseconds since the epoch.
+	 * that returns a number of milliseconds since the epoch.
 	 * <p>
-	 * The values returned from {@link #millis()} and {@link #instant()} are
-	 * entirely dependent upon the value returned by {@code millisecondSupplier}
-	 * . Likewise, these functions will throw any RuntimeException that is
-	 * thrown by {@code millisecondSupplier} when
+	 * Clocks created by this function return values from {@link #millis()} and
+	 * {@link #instant()} that are dependent upon the value returned by
+	 * {@code millisecondSupplier}. Because of this, these functions will throw
+	 * any RuntimeException that is thrown by {@code millisecondSupplier} when
 	 * {@link LongSupplier#getAsLong()} is invoked.
 	 * <p>
 	 * The returned implementation is immutable, thread-safe and
 	 * {@code Serializable} providing that the underlying LongSupplier is.
 	 * 
 	 * @param millisecondSupplier
-	 *            A non-null LongSupplier that supplies the number of seconds
-	 *            since the epoch that this clock will return when queried via
-	 *            {@link #millis()} and {@link #instant()}.
+	 *            A non-null LongSupplier that supplies the number of
+	 *            milliseconds since the epoch that this clock will return when
+	 *            queried via {@link #millis()} and {@link #instant()}.
 	 * @param zoneId
 	 *            The ZoneId of this Clock, as returned by {@link #getZone()}.
 	 * @return A new Clock that will obtain the milliseconds it returns in
@@ -157,14 +161,15 @@ public final class SupplierClock extends Clock implements Serializable {
 
 	/**
 	 * Creates a new Clock that has the time it returns based upon a Supplier
-	 * that supplies a non-null Instant.
+	 * that supplies Instant values.
 	 * <p>
-	 * The values returned from {@link #millis()} and {@link #instant()} are
-	 * entirely dependent upon the value returned by {@code instantSupplier} .
-	 * Likewise, these functions will throw any RuntimeException that is thrown
-	 * by {@code millisecondSupplier} when {@link Supplier#get()} is invoked, or
-	 * will throw an {@link IllegalStateException} if {@code instantSupplier}
-	 * returns an {@code null} value.
+	 * Clocks created by this function return values from {@link #millis()} and
+	 * {@link #instant()} that are dependent upon the value returned by
+	 * {@code instantSupplier}. Because of this, these functions will throw any
+	 * RuntimeException that is thrown by {@code millisecondSupplier} when
+	 * {@link Supplier#get()} is invoked, or will throw an
+	 * {@link IllegalStateException} if {@code instantSupplier} returns an
+	 * {@code null} value.
 	 * <p>
 	 * The returned implementation is immutable, thread-safe and
 	 * {@code Serializable} providing that the underlying Supplier is.
