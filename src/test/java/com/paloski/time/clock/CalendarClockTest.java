@@ -1,7 +1,13 @@
 package com.paloski.time.clock;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -95,6 +101,51 @@ public class CalendarClockTest {
 			assertEquals(10, callCount.get());
 		}
 
+		@Test
+		public void clockIsSerializableIfSupplierIs() throws IOException {
+			Supplier<Calendar> calendarSupplier = (Serializable & Supplier<Calendar>) () -> Calendar.getInstance();
+			ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream());
+			try {
+				oos.writeObject(calendarSupplier);
+			} catch (ObjectStreamException exp) {
+				fail("Precondition failed: could not serialize supplier");
+			}
+			
+			CalendarClock clock = CalendarClock.ofSupplier(calendarSupplier, ZoneId.systemDefault());
+			
+			try {
+				oos.writeObject(clock);
+			} catch (ObjectStreamException exp) {
+				fail("Could not serialize CalendarSupplierClock even though the Supplier was serializable");
+			}
+		}
+		
+		@Test
+		public void clockIsNotSerializableIfSupplierIsnt() throws IOException {
+			Supplier<Calendar> calendarSupplier = (Supplier<Calendar>) () -> Calendar.getInstance();
+			ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream());
+			boolean serializationFailed = false;
+			try {
+				oos.writeObject(calendarSupplier);
+			} catch (ObjectStreamException exp) {
+				serializationFailed = true;
+			}
+			
+			if(!serializationFailed) {
+				fail("Test precondition failed: Lambda was successfully serialized");
+			}
+			
+			CalendarClock clock = CalendarClock.ofSupplier(calendarSupplier, ZoneId.systemDefault());
+			
+			try {
+				oos.writeObject(clock);
+			} catch (ObjectStreamException exp) {
+				//Serialization succeeded, return out.
+				return;
+			}
+			fail("Successfully serialized clock based upon non-serializable lambda, this should not succeed");
+		}
+		
 	}
 
 	public static class GetDateTests {

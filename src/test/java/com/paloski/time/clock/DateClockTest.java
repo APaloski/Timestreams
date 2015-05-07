@@ -1,7 +1,13 @@
 package com.paloski.time.clock;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -89,6 +95,51 @@ public class DateClockTest {
 			}
 
 			assertEquals(10, callCount.get());
+		}
+
+		@Test
+		public void clockIsSerializableIfSupplierIs() throws IOException {
+			Supplier<Date> dateSupplier = (Serializable & Supplier<Date>) () -> Date.from(Instant.EPOCH);
+			ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream());
+			try {
+				oos.writeObject(dateSupplier);
+			} catch (ObjectStreamException exp) {
+				fail("Precondition failed: could not serialize supplier");
+			}
+
+			DateClock clock = DateClock.ofSupplier(dateSupplier, ZoneId.systemDefault());
+
+			try {
+				oos.writeObject(clock);
+			} catch (ObjectStreamException exp) {
+				fail("Could not serialize CalendarSupplierClock even though the Supplier was serializable");
+			}
+		}
+
+		@Test
+		public void clockIsNotSerializableIfSupplierIsnt() throws IOException {
+			Supplier<Date> dateSupplier = (Supplier<Date>) () -> Date.from(Instant.EPOCH);
+			ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream());
+			boolean serializationFailed = false;
+			try {
+				oos.writeObject(dateSupplier);
+			} catch (ObjectStreamException exp) {
+				serializationFailed = true;
+			}
+
+			if (!serializationFailed) {
+				fail("Test precondition failed: Lambda was successfully serialized");
+			}
+
+			DateClock clock = DateClock.ofSupplier(dateSupplier, ZoneId.systemDefault());
+
+			try {
+				oos.writeObject(clock);
+			} catch (ObjectStreamException exp) {
+				// Serialization succeeded, return out.
+				return;
+			}
+			fail("Successfully serialized clock based upon non-serializable lambda, this should not succeed");
 		}
 
 	}
