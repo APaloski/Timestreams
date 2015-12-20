@@ -47,25 +47,23 @@ import java.util.function.Supplier;
  * <p>
  * In a normal use case, this class can be used from an existing Date source in
  * the following way:
- * 
+ * <p>
  * <pre>
  * {@code
- * //Get the current date based time source...
- * ExistingTimeSource existingSource = getExistingTimeSource();
- * Clock dateClock = DateClock.ofSupplier(existingSource::getCurrentDate());
- * //Call into any of the Temporal implementations that take a Clock to their now() function
- * LocalDate date = LocalDate.now(dateClock);
+ * 	//Get the current date based time source...
+ * 	ExistingTimeSource existingSource = getExistingTimeSource();
+ * 	Clock dateClock = DateClock.ofSupplier(existingSource::getCurrentDate());
+ * 	//Call into any of the Temporal implementations that take a Clock to their now() function
+ * 	LocalDate date = LocalDate.now(dateClock);
  * }
  * </pre>
  * <p>
  * Subclasses should ensure that they document immutability, Serializability and
- * thread safety, as described in {@link Clock}. Subclasses must <em>never</em>
- * modify Date objects returned from {@link #getDate()}, and should clone it
+ * thread safety, as described in {@link Clock}. Additionally, subclases must
+ * <em>never</em> modify Date objects returned from {@link #getDate()}, and should clone it
  * before changing it.
- * 
- * 
- * @author Adam Paloski
  *
+ * @author Adam Paloski
  */
 public abstract class DateClock extends Clock {
 
@@ -78,9 +76,9 @@ public abstract class DateClock extends Clock {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @implNote The implementation of this method in DateClock will <b>not</b>
-	 *           modify the Date object returned by {@link #getDate()}
+	 * modify the Date object returned by {@link #getDate()}
 	 */
 	@Override
 	public final long millis() {
@@ -89,9 +87,9 @@ public abstract class DateClock extends Clock {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @implNote The implementation of this method in DateClock will <b>not</b>
-	 *           modify the Date object returned by {@link #getDate()}
+	 * modify the Date object returned by {@link #getDate()}
 	 */
 	@Override
 	public final Instant instant() {
@@ -109,9 +107,9 @@ public abstract class DateClock extends Clock {
 	 * Any invokers of this method should take care <b>not</b> to alter the
 	 * returned Date object, as it has no requirements of immutability and may
 	 * be a single object returned repeatedly, such as in a fixed clock.
-	 * 
+	 *
 	 * @return A non-null Date object representing the current point on the
-	 *         clock.
+	 * clock.
 	 */
 	protected abstract Date getDate();
 
@@ -129,15 +127,17 @@ public abstract class DateClock extends Clock {
 	 * <p>
 	 * The returned implementation is immutable, thread-safe and
 	 * {@code Serializable} providing that the underlying Supplier is.
-	 * 
+	 *
 	 * @param dateSupplier
-	 *            A non-null Supplier that returns only non-null date objects.
+	 * 		A non-null Supplier that returns only non-null date objects.
 	 * @param zoneId
-	 *            A non-null ZoneId that this cloak is situated in.
+	 * 		A non-null ZoneId that this cloak is situated in.
+	 *
 	 * @return A non-null DateClock that will return Instants based upon the
-	 *         Dates returned by {@code dateSupplier}.
+	 * Dates returned by {@code dateSupplier}.
+	 *
 	 * @implNote The Date objects supplied to any Clock produced by this method
-	 *           will <i>not</i> be modified.
+	 * will <i>not</i> be modified.
 	 */
 	public static DateClock ofSupplier(Supplier<Date> dateSupplier, ZoneId zoneId) {
 		return new DateSupplierClock(dateSupplier, zoneId);
@@ -145,9 +145,8 @@ public abstract class DateClock extends Clock {
 
 	/**
 	 * A Private Clock class used by {@link #ofSupplier(Supplier, ZoneId)}
-	 * 
-	 * @author Adam Paloski
 	 *
+	 * @author Adam Paloski
 	 */
 	private static class DateSupplierClock extends DateClock implements Serializable {
 

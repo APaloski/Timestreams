@@ -53,8 +53,7 @@
  * The {@link com.paloski.time.clock.SupplierClock} class is provided for
  * creating a Clock that is based from an externalized millisecond (in long
  * form) or Instant provider.
- * 
- * @author Adam Paloski
  *
+ * @author Adam Paloski
  */
 package com.paloski.time.clock;

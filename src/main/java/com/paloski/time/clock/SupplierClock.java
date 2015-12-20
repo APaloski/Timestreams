@@ -44,22 +44,21 @@ import java.util.function.Supplier;
  * <p>
  * Any Supplier can be used as the data source to this method, so it is easy to
  * recreate Clocks such as {@link Clock#system(ZoneId)} by calling
- * 
+ * <p>
  * <pre>
  * {@code SupplierClock.ofMillisecondSupplier(System::currentTimeMillis, ZoneId);}
  * </pre>
- * 
+ * <p>
  * or {@link Clock#fixed(Instant, ZoneId)} by calling
- * 
+ * <p>
  * <pre>
  * {@code SupplierClock.ofMillisecondSupplier(() -> 3500L, ZoneId);}
  * </pre>
  * <p>
  * This implementation of Clock is immutable, thread-safe and
  * {@code Serializable}, provided that the underlying Supplier is.
- * 
- * @author Adam Paloski
  *
+ * @author Adam Paloski
  */
 public final class SupplierClock extends Clock implements Serializable {
 
@@ -75,13 +74,13 @@ public final class SupplierClock extends Clock implements Serializable {
 	/**
 	 * Private constructor that initializes the millisecond supplier to be an
 	 * argument and leaves the instant supplier to be null.
-	 * 
+	 *
 	 * @param millisecondSupplier
-	 *            A non-null LongSupplier, if this is null an
-	 *            IllegalStateException will be thrown.
+	 * 		A non-null LongSupplier, if this is null an
+	 * 		IllegalStateException will be thrown.
 	 * @param zoneId
-	 *            A non-null ZoneId, if this is null a NullPointerException will
-	 *            be thrown.
+	 * 		A non-null ZoneId, if this is null a NullPointerException will
+	 * 		be thrown.
 	 */
 	private SupplierClock(LongSupplier millisecondSupplier, ZoneId zoneId) {
 		if (millisecondSupplier == null) {
@@ -96,13 +95,13 @@ public final class SupplierClock extends Clock implements Serializable {
 	/**
 	 * Private constructor that initializes the instant supplier to be an
 	 * argument and leaves the millisecond supplier to be null.
-	 * 
+	 *
 	 * @param instantSupplier
-	 *            A non-null Supplier, if this is null an IllegalStateException
-	 *            will be thrown.
+	 * 		A non-null Supplier, if this is null an IllegalStateException
+	 * 		will be thrown.
 	 * @param zoneId
-	 *            A non-null ZoneId, if this is null a NullPointerException will
-	 *            be thrown.
+	 * 		A non-null ZoneId, if this is null a NullPointerException will
+	 * 		be thrown.
 	 */
 	private SupplierClock(Supplier<Instant> instantSupplier, ZoneId zoneId) {
 		if (instantSupplier == null) {
@@ -168,15 +167,16 @@ public final class SupplierClock extends Clock implements Serializable {
 	 * <p>
 	 * The returned implementation is immutable, thread-safe and
 	 * {@code Serializable} providing that the underlying LongSupplier is.
-	 * 
+	 *
 	 * @param millisecondSupplier
-	 *            A non-null LongSupplier that supplies the number of
-	 *            milliseconds since the epoch that this clock will return when
-	 *            queried via {@link #millis()} and {@link #instant()}.
+	 * 		A non-null LongSupplier that supplies the number of
+	 * 		milliseconds since the epoch that this clock will return when
+	 * 		queried via {@link #millis()} and {@link #instant()}.
 	 * @param zoneId
-	 *            The ZoneId of this Clock, as returned by {@link #getZone()}.
+	 * 		The ZoneId of this Clock, as returned by {@link #getZone()}.
+	 *
 	 * @return A new Clock that will obtain the milliseconds it returns in
-	 *         {@link #millis()} from a {@code millisecondSupplier}.
+	 * {@link #millis()} from a {@code millisecondSupplier}.
 	 */
 	public static Clock ofMillisecondSupplier(LongSupplier millisecondSupplier, ZoneId zoneId) {
 		return new SupplierClock(Objects.requireNonNull(millisecondSupplier, "The millisecond supplier cannot be null"), zoneId);
@@ -196,14 +196,15 @@ public final class SupplierClock extends Clock implements Serializable {
 	 * <p>
 	 * The returned implementation is immutable, thread-safe and
 	 * {@code Serializable} providing that the underlying Supplier is.
-	 * 
+	 *
 	 * @param instantSupplier
-	 *            A non-null Supplier that supplies the Instant that will be
-	 *            returned when {@link #millis()} and {@link #instant()}.
+	 * 		A non-null Supplier that supplies the Instant that will be
+	 * 		returned when {@link #millis()} and {@link #instant()}.
 	 * @param zoneId
-	 *            The ZoneId of this Clock, as returned by {@link #getZone()}.
+	 * 		The ZoneId of this Clock, as returned by {@link #getZone()}.
+	 *
 	 * @return A new Clock that will obtain the milliseconds it returns in
-	 *         {@link #millis()} from a {@code millisecondSupplier}.
+	 * {@link #millis()} from a {@code millisecondSupplier}.
 	 */
 	public static Clock ofInstantSupplier(Supplier<Instant> instantSupplier, ZoneId zoneId) {
 		return new SupplierClock(Objects.requireNonNull(instantSupplier, "The instant supplier cannot be null"), zoneId);

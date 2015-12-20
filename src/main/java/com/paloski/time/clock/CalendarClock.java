@@ -43,14 +43,14 @@ import java.util.function.Supplier;
  * <p>
  * In a normal use case, this class can be used from an existing Calendar source
  * in the following way:
- * 
+ * <p>
  * <pre>
  * {@code
- * //Get the current date based time source...
- * ExistingTimeSource existingSource = getExistingTimeSource();
- * Clock calendarClock = CalendarClock.ofSupplier(existingSource::getCurrentCalendar());
- * //Call into any of the Temporal implementations that take a Clock to their now() function
- * LocalDate date = LocalDate.now(calendarClock);
+ * 	//Get the current date based time source...
+ * 	ExistingTimeSource existingSource = getExistingTimeSource();
+ * 	Clock calendarClock = CalendarClock.ofSupplier(existingSource::getCurrentCalendar());
+ * 	//Call into any of the Temporal implementations that take a Clock to their now() function
+ * 	LocalDate date = LocalDate.now(calendarClock);
  * }
  * </pre>
  * <p>
@@ -58,15 +58,13 @@ import java.util.function.Supplier;
  * thread safety, as described in {@link Clock}. Subclasses must <em>never</em>
  * modify Calendar objects returned from {@link #getCalendar()}, and should
  * clone it before changing it.
- * 
- * 
- * @author Adam Paloski
  *
+ * @author Adam Paloski
  */
 public abstract class CalendarClock extends Clock {
 
 	/**
-	 * Constructor accessible by subclasses.
+	 * Constructor accessible only by subclasses.
 	 */
 	protected CalendarClock() {
 		// Do nothing
@@ -74,10 +72,6 @@ public abstract class CalendarClock extends Clock {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @implSpec All implementations of this method in CalendarClock will
-	 *           <b>not</b> modify the Calendar object returned by
-	 *           {@link #getCalendar()}.
 	 */
 	@Override
 	public final long millis() {
@@ -86,10 +80,6 @@ public abstract class CalendarClock extends Clock {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @implNote All implementations of this method in CalendarClock will
-	 *           <b>not</b> modify the Calendar object returned by
-	 *           {@link #getCalendar()}
 	 */
 	@Override
 	public final Instant instant() {
@@ -105,9 +95,9 @@ public abstract class CalendarClock extends Clock {
 	 * returned Calendar object, as it has no requirements of immutability and
 	 * may be a single object returned repeatedly, such as in the case of a
 	 * fixed clock.
-	 * 
+	 *
 	 * @return A non-null Calendar object representing the current point on the
-	 *         clock.
+	 * clock.
 	 */
 	protected abstract Calendar getCalendar();
 
@@ -117,7 +107,8 @@ public abstract class CalendarClock extends Clock {
 	 * <p>
 	 * The Supplier passed to this function <b>must</b> not return null when
 	 * {@link Supplier#get()} is invoked. To do so will result in a
-	 * {@code NullPointerException} being thrown.
+	 * {@code NullPointerException} being thrown. Additionally, the Calendar objects returned by
+	 * this supplier will not be exposed for alteration.
 	 * <p>
 	 * Note that as UTC time from the calendars returned from
 	 * {@code calendarSupplier} is used to create the Instants produced by this
@@ -126,16 +117,15 @@ public abstract class CalendarClock extends Clock {
 	 * <p>
 	 * The returned implementation is immutable, thread-safe and
 	 * {@code Serializable} providing that the underlying Supplier is.
-	 * 
+	 *
 	 * @param calendarSupplier
-	 *            A non-null Supplier that returns only non-null Calendar
-	 *            objects.
+	 * 		A non-null Supplier that returns only non-null Calendar
+	 * 		objects.
 	 * @param zoneId
-	 *            A non-null ZoneId that this cloak is situated in.
+	 * 		A non-null ZoneId that this cloak is situated in.
+	 *
 	 * @return A non-null CalendarClock that will return Instants based upon the
-	 *         Calendars returned by {@code calendarSupplier}.
-	 * @implNote The Calendar objects supplied to any Clock produced by this
-	 *           method will <em>not</em> be modified.
+	 * Calendars returned by {@code calendarSupplier}.
 	 */
 	public static CalendarClock ofSupplier(Supplier<Calendar> calendarSupplier, ZoneId zoneId) {
 		return new CalendarSupplierClock(calendarSupplier, zoneId);
@@ -143,9 +133,8 @@ public abstract class CalendarClock extends Clock {
 
 	/**
 	 * A Private Clock class used by {@link #ofSupplier(Supplier, ZoneId)}
-	 * 
-	 * @author Adam Paloski
 	 *
+	 * @author Adam Paloski
 	 */
 	private static class CalendarSupplierClock extends CalendarClock implements Serializable {
 
@@ -161,7 +150,7 @@ public abstract class CalendarClock extends Clock {
 		@Override
 		public Calendar getCalendar() {
 			return Objects.requireNonNull(mCalendarSupplier.get(), "The date supplier, " + mCalendarSupplier
-					+ " may not supply a null value.");
+																   + " may not supply a null value.");
 		}
 
 		@Override

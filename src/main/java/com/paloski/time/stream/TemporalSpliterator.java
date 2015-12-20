@@ -63,7 +63,6 @@ import com.paloski.time.TemporalUtils;
  */
 public final class TemporalSpliterator<T extends Temporal & Comparable<? super T>> implements Spliterator<T> {
 
-	private final T mStartingPoint;
 	private final T mEndingPoint;
 	private T mCurrentPoint;
 	private final TemporalUnit mIncrementAmountsSmallestUnit;
@@ -88,7 +87,7 @@ public final class TemporalSpliterator<T extends Temporal & Comparable<? super T
 	 *            {@link #tryAdvance(Consumer)} is called.
 	 */
 	public TemporalSpliterator(T startingPointInclusive, T endingPointExclusive, TemporalAmount increment) {
-		mStartingPoint = Objects.requireNonNull(startingPointInclusive, "The starting point of a TemporalSpliterator may not be null");
+		T startingPoint = Objects.requireNonNull(startingPointInclusive, "The starting point of a TemporalSpliterator may not be null");
 		mEndingPoint = Objects.requireNonNull(endingPointExclusive, "The ending point of a TemporalSpliterator may not be null");
 		mIncrementAmount = Objects.requireNonNull(increment, "The incrementing amount of a TemporalSpliterator may not be null");
 
@@ -105,7 +104,7 @@ public final class TemporalSpliterator<T extends Temporal & Comparable<? super T
 		for (ListIterator<TemporalUnit> li = units.listIterator(units.size()); li.hasPrevious();) {
 			TemporalUnit unit = li.previous();
 			// We try to find the smallest one possible...
-			if (increment.get(unit) != 0 && smallestPrecisionInIncrement == null) {
+			if (increment.get(unit) != 0) {
 				smallestPrecisionInIncrement = unit;
 				break;
 			}
@@ -124,7 +123,7 @@ public final class TemporalSpliterator<T extends Temporal & Comparable<? super T
 		if (smallestPrecisionInIncrement == null) {
 			throw new IllegalArgumentException("TemporalAmount " + increment + " must have a value for a unit it supports");
 		}
-		mCurrentPoint = mStartingPoint;
+		mCurrentPoint = startingPoint;
 	}
 
 	@Override
@@ -143,27 +142,23 @@ public final class TemporalSpliterator<T extends Temporal & Comparable<? super T
 
 		T newSpliteratorsStartingPosition = mCurrentPoint;
 
-		// Below dupes code in estimate size, but we need each of these
-		// variables
-		long durationUntilEndInSmallestUnitAmount = mIncrementAmountsSmallestUnit.between(mCurrentPoint, mEndingPoint);
-		double amountOfSmallestUnitInIncrement = TemporalUtils.getEstimatedNumberOfUnits(mIncrementAmount, mIncrementAmountsSmallestUnit);
+		long numberOfEntriesUntilEnd = estimateSize();
 
-		// For more information on why we ceil this, see estimateSize
-		long numberOfEntiresUntilEnd = (long) Math.ceil(durationUntilEndInSmallestUnitAmount / amountOfSmallestUnitInIncrement);
-
-		if (numberOfEntiresUntilEnd <= 1) {
+		if (numberOfEntriesUntilEnd <= 1) {
 			return null;
 		}
 
+		double amountOfSmallestUnitInIncrement = TemporalUtils.getEstimatedNumberOfUnits(mIncrementAmount, mIncrementAmountsSmallestUnit);
+
 		T splitPoint = mIncrementAmountsSmallestUnit.addTo(mCurrentPoint,
-				Math.round(amountOfSmallestUnitInIncrement * (numberOfEntiresUntilEnd / 2)));
+				Math.round(amountOfSmallestUnitInIncrement * (numberOfEntriesUntilEnd / 2)));
 
 		// If the half duration until the end is less than the increment amount,
 		// we have hit our base case for splitting and should return null
 
 		mCurrentPoint = splitPoint;
 
-		return new TemporalSpliterator<T>(newSpliteratorsStartingPosition, splitPoint, mIncrementAmount);
+		return new TemporalSpliterator<>(newSpliteratorsStartingPosition, splitPoint, mIncrementAmount);
 	}
 
 	@Override

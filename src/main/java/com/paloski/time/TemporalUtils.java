@@ -43,14 +43,20 @@ public class TemporalUtils {
 	 * <p>
 	 * Note, this is called estimated because TemporalUnit allows a class to
 	 * have an estimated value via {@link TemporalUnit#isDurationEstimated()}.
-	 * 
+	 *
 	 * @param amount
-	 *            A TemporalAmount that will be converted into a given temporal
-	 *            unit
+	 * 		A TemporalAmount that will be converted into a given temporal
+	 * 		unit
 	 * @param unit
-	 *            A TemporalUnit that this type should be converted into.
+	 * 		A TemporalUnit that this type should be converted into.
+	 *
 	 * @return A double representing the fractional number of {@code unit} that
-	 *         is represented by {@code amount}.
+	 * is represented by {@code amount}.
+	 *
+	 * @throws java.time.DateTimeException
+	 * 		If {@code amount} violates the contract on {@link TemporalAmount#get(TemporalUnit)}
+	 * @throws ArithmeticException
+	 * 		If numeric overflow occurs.
 	 */
 	public static double getEstimatedNumberOfUnits(TemporalAmount amount, TemporalUnit unit) {
 		final long nanosInUnit = unit.getDuration().toNanos();

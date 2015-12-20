@@ -49,27 +49,27 @@ import java.util.TimeZone;
  * has an external Time provider that provides {@link Calendar} objects as a
  * means of measuring the current point in Time, this class can be used in the
  * following way:
- * 
+ * <p>
  * <pre>
- * {@code 
- * 	public static final LegacyClock mLegacyClock = LegacyClock.of(CalendarClock.ofSupplier(LegacyCalendarSupplier::getCurrentDateTime, ZoneId.getSystemDefault()));
- *  
+ * {@code
+ * 	public final LegacyClock mLegacyClock = LegacyClock.of(
+ * 		CalendarClock.ofSupplier(LegacySupplier::getCurrentCal, ZoneId.of("EST")));
+ *
  *  public void timeMethod() {
  *  	//Later when calling a method using legacy Date objects...
  *  	LegacyDateAPICall.functionDependentOnDate(mLegacyClock.toDate());
- *  
+ *
  *  	//Later when calling a method using legacy Calendar objects
  *  	mCalendarBasedObjectToSave.setCurrentDateTime(mLegacyClock.toUTCCalendar());
  *  	mCalendarBasedObjectToSave.save();
- *  
+ *
  *  	//Later when working with current date/time APIs
  *  	LocalDate date = LocalDate.of(mLegacyClock);
  *  }
  * }
  * </pre>
- * 
- * @author Adam Paloski
  *
+ * @author Adam Paloski
  */
 /*
  * TODO: This class is mildly inefficent when working with Calendar and Date
@@ -89,9 +89,9 @@ public final class LegacyClock extends Clock implements Serializable {
 	/**
 	 * Creates a new LegacyClock that wraps a Clock used for its underlying time
 	 * amounts.
-	 * 
+	 *
 	 * @param wrapped
-	 *            A non-null clock used for underlying time measurements.
+	 * 		A non-null clock used for underlying time measurements.
 	 */
 	private LegacyClock(Clock wrapped) {
 		mWrappedClock = Objects.requireNonNull(wrapped);
@@ -108,8 +108,9 @@ public final class LegacyClock extends Clock implements Serializable {
 	/**
 	 * Obtains the TimeZone equivalent to the ZoneId returned by
 	 * {@link #getZone()}.
-	 * 
+	 *
 	 * @return A TimeZone object based upon the ZoneId of this clock.
+	 *
 	 * @see TimeZone#getTimeZone(ZoneId)
 	 */
 	public TimeZone getTimeZone() {
@@ -134,12 +135,14 @@ public final class LegacyClock extends Clock implements Serializable {
 	 * A clock will typically obtain the current instant and then convert that
 	 * to a date or time using a time-zone. This method returns a clock with
 	 * similar properties but using a different time-zone.
-	 * 
+	 *
 	 * @param zone
-	 *            A non-null TimeZone object that is then mapped to a ZoneId for
-	 *            setting the TimeZone of this Clock.
+	 * 		A non-null TimeZone object that is then mapped to a ZoneId for
+	 * 		setting the TimeZone of this Clock.
+	 *
 	 * @return A non-null Clock based upon this clock with the specified
-	 *         time-zone.
+	 * time-zone.
+	 *
 	 * @see #withZone(ZoneId) to convert using a ZoneId object.
 	 */
 	public LegacyClock withTimeZone(TimeZone zone) {
@@ -160,19 +163,17 @@ public final class LegacyClock extends Clock implements Serializable {
 	 * The created Calendar will have a {@link Calendar#getTimeZone() time-zone}
 	 * of UTC and a {@link Calendar#getTimeInMillis() time} equal to the current
 	 * value of {@link #millis()}.
-	 * 
+	 *
 	 * @return A new, non-null Calendar representing the same point in time time
-	 *         as this Clock with a TimeZone of UTC.
+	 * as this Clock with a TimeZone of UTC.
+	 *
 	 * @see #toZonedCalendar() for a Calendar with an equivalent time-zone to
-	 *      this Clock set
+	 * this Clock set
 	 */
 	public Calendar toUTCCalendar() {
-		// @formatter:off
-		return new Calendar.Builder()
-				.setInstant(millis())
-				.setTimeZone(TimeZone.getTimeZone("UTC"))
-				.build();
-		// @formatter:on
+		return new Calendar.Builder().setInstant(millis())
+									 .setTimeZone(TimeZone.getTimeZone("UTC"))
+									 .build();
 	}
 
 	/**
@@ -183,18 +184,19 @@ public final class LegacyClock extends Clock implements Serializable {
 	 * equal to the TimeZone returned by {@link #getTimeZone()} and a
 	 * {@link Calendar#getTimeInMillis() time} equal to the current value of
 	 * {@link #millis()}.
-	 * 
+	 *
 	 * @return A new, non-null Calendar representing the same point in time as
-	 *         this Clock, in the same time-zone as this clock.
+	 * this Clock, in the same time-zone as this clock.
+	 *
 	 * @see #toUTCCalendar() for a Calendar within the UTC time-zone
 	 */
 	public Calendar toZonedCalendar() {
-		// @formatter:off
+
 		return new Calendar.Builder()
 				.setInstant(millis())
 				.setTimeZone(getTimeZone())
 				.build();
-		// @formatter:on
+
 	}
 
 	/**
@@ -203,11 +205,12 @@ public final class LegacyClock extends Clock implements Serializable {
 	 * <p>
 	 * The created Date will have {@link Date#getTime()} value equal to the
 	 * current value of {@link #millis()}.
-	 * 
+	 *
 	 * @return A new, non-null Date object representing the same point in time
-	 *         as this Clock
+	 * as this Clock
+	 *
 	 * @see #toTimestamp() for converting to a {@link Timestamp} object instead
-	 *      of a Date object
+	 * of a Date object
 	 */
 	public Date toDate() {
 		return new Date(millis());
@@ -216,12 +219,12 @@ public final class LegacyClock extends Clock implements Serializable {
 	/**
 	 * Converts the current time of this Clock to a Timestamp at the same point
 	 * in time.
-	 * 
+	 * <p>
 	 * The created Timestamp will have {@link Timestamp#getTime()} value equal
 	 * to the current value of {@link #millis()}.
-	 * 
+	 *
 	 * @return A new, non-null Date object representing the same point in time
-	 *         as this Clock
+	 * as this Clock
 	 */
 	public Timestamp toTimestamp() {
 		return new Timestamp(millis());
@@ -237,13 +240,13 @@ public final class LegacyClock extends Clock implements Serializable {
 	 * <p>
 	 * The returned implementation is immutable, thread-safe and
 	 * {@code Serializable} providing that the base clock is.
-	 * 
+	 *
 	 * @param otherClock
-	 *            A non-null Clock that will be wrapped by this Clock and
-	 *            provide the underlying time amounts used by it
-	 * 
+	 * 		A non-null Clock that will be wrapped by this Clock and
+	 * 		provide the underlying time amounts used by it
+	 *
 	 * @return A new Clock that wraps {@code otherClock} and allows access to
-	 *         legacy time values based upon it.
+	 * legacy time values based upon it.
 	 */
 	public static LegacyClock of(Clock otherClock) {
 		return new LegacyClock(otherClock);
@@ -267,10 +270,7 @@ public final class LegacyClock extends Clock implements Serializable {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof LegacyClock) {
-			return mWrappedClock.equals(((LegacyClock) obj).mWrappedClock);
-		}
-		return false;
+		return (obj instanceof LegacyClock) && mWrappedClock.equals(((LegacyClock) obj).mWrappedClock);
 	}
 
 }
