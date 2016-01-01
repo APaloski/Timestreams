@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>Timestreams by APaloski</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Timestreams</h1>
+        <h2>A small set of utilities for Java 8 that help with working with legacy time code and allow streaming of Java 8 temporal objects</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/APaloski/Timestreams/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/APaloski/Timestreams/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/APaloski/Timestreams" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a id="timestreams" class="anchor" href="#timestreams" aria-hidden="true"><span class="octicon octicon-link"></span></a>Timestreams</h1>
+
+<p>Timestreams is a small library that adds in additional features to the java.time packages, helping to migrate older code using the older java time APIs as well as allowing use of the java.util.stream APIs with the new time types.</p>
+
+<h2>
+<a id="time-streams" class="anchor" href="#time-streams" aria-hidden="true"><span class="octicon octicon-link"></span></a>Time Streams</h2>
+
+<p>Time Streams allow you to create a <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html">Stream</a> using the java.time data types.</p>
+
+<p>The main entry point in temporal streaming is the TemporalStreams class, which provides static factory methods for creating some common streams, such as streaming over every day in a given year, or streaming over all hours in a given day.</p>
+
+<p>For instance, if I wanted to look for the first Friday the 13th in the year 2016.</p>
+
+<div class="highlight highlight-source-java"><pre>  <span class="pl-k">Optional&lt;<span class="pl-smi">LocalDate</span>&gt;</span> fridayTheThirteenth <span class="pl-k">=</span> <span class="pl-smi">TemporalStreams</span><span class="pl-k">.</span>everyDayInYear(<span class="pl-smi">Year</span><span class="pl-k">.</span>of(<span class="pl-c1">2016</span>))
+                 .filter(localDate <span class="pl-k">-</span><span class="pl-k">&gt;</span> localDate<span class="pl-k">.</span>getDayOfMonth() <span class="pl-k">==</span> <span class="pl-c1">13</span>)
+                 .filter(localDate <span class="pl-k">-</span><span class="pl-k">&gt;</span> localDate<span class="pl-k">.</span>getDayOfWeek() <span class="pl-k">==</span> <span class="pl-smi">DayOfWeek</span><span class="pl-c1"><span class="pl-k">.</span>FRIDAY</span>)
+                 .findFirst();</pre></div>
+
+<p>If the provided factory methods don't fit your need a Builder is also provided that can be used to create a custom Stream, given the period between times, the starting point and the ending poit.</p>
+
+<p>For instance, if I wanted to create a list of every Monday from now until the first of 2017</p>
+
+<div class="highlight highlight-source-java"><pre>  <span class="pl-k">new</span> <span class="pl-k">TemporalStreamBuilder&lt;<span class="pl-smi">LocalDate</span>&gt;</span>()<span class="pl-k">.</span>every(<span class="pl-smi">Period</span><span class="pl-k">.</span>ofWeeks(<span class="pl-c1">1</span>))
+                                        .from(<span class="pl-smi">LocalDate</span><span class="pl-k">.</span>of(<span class="pl-c1">2016</span>, <span class="pl-smi">Month</span><span class="pl-c1"><span class="pl-k">.</span>JANUARY</span>, <span class="pl-c1">1</span>)) <span class="pl-c">//January 1st 2016 is a Friday</span>
+                                        .until(<span class="pl-smi">LocalDate</span><span class="pl-k">.</span>of(<span class="pl-c1">2016</span>, <span class="pl-smi">Month</span><span class="pl-c1"><span class="pl-k">.</span>JANUARY</span>, <span class="pl-c1">1</span>))
+                                        .stream()
+                                        .collect(<span class="pl-smi">Collectors</span><span class="pl-k">.</span>toList());</pre></div>
+
+<h2>
+<a id="clocks" class="anchor" href="#clocks" aria-hidden="true"><span class="octicon octicon-link"></span></a>Clocks</h2>
+
+<p>A number of custom <a href="https://docs.oracle.com/javase/8/docs/api/java/time/Clock.html">Clock</a> implementations are provided which should help migration from older code systems that utilize the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Calendar.html">Calendar</a> or <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Date.html">Date</a> classes.</p>
+
+<p>If we want to get a LocalDate from an external data source, like a server, that returns Calendar instances, we would normally need to do the following</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">void</span> newerMethod() {
+  <span class="pl-smi">Calendar</span> externalCalendar <span class="pl-k">=</span> <span class="pl-smi">ExternalSource</span><span class="pl-k">.</span>getCalendar();
+  <span class="pl-smi">LocalDate</span> calendarTime <span class="pl-k">=</span> <span class="pl-smi">LocalDateTime</span><span class="pl-k">.</span>ofInstant(externalCalendar<span class="pl-k">.</span>toInstant(), externalCalendar<span class="pl-k">.</span>getTimeZone()<span class="pl-k">.</span>toZoneId())<span class="pl-k">.</span>toLocalDate();
+}</pre></div>
+
+<p>Remembering all of the proper functions for doing this can be a pain, and who needs another static helper method in their code base?</p>
+
+<p>Instead, using a CalendarClock we can say</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-c">//This can be set at some global singleton level</span>
+<span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Clock</span> exteralClock <span class="pl-k">=</span> <span class="pl-smi">CalendarClock</span><span class="pl-k">.</span>ofSupplier(<span class="pl-smi">ExternalSource</span><span class="pl-k">::</span>getCalendar, <span class="pl-smi">ZoneId</span><span class="pl-k">.</span>systemDefault());
+
+<span class="pl-k">public</span> <span class="pl-k">void</span> newerMethod() {
+  <span class="pl-smi">LocalDate</span> date <span class="pl-k">=</span> <span class="pl-smi">LocalDate</span><span class="pl-k">.</span>now(externalClock);
+}</pre></div>
+
+<p>But what if your code base ranges from brand new to ancient? You need to use Date, Calendar and LocalDate all stemming from the same time provider? </p>
+
+<p>A LegacyClock allows you to obtain millis UTC, Instants (and from them LocalDate, LocalDateTime, etc.), Date and Calendar objects all from one class via composition. </p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-c">//Legacy clock uses the underlying data sources data and provides standard conversions to Calendar, etc.</span>
+<span class="pl-smi">LegacyClock</span> legacyClock <span class="pl-k">=</span> <span class="pl-smi">LegacyClock</span><span class="pl-k">.</span>of(<span class="pl-smi">CalendarClock</span><span class="pl-k">.</span>ofSupplier(<span class="pl-smi">ExternalSource</span><span class="pl-k">::</span>getCurrentTime, <span class="pl-smi">ZoneId</span><span class="pl-k">.</span>systemDefault()));
+
+<span class="pl-k">public</span> <span class="pl-k">void</span> javaOneMethod() {
+    <span class="pl-smi">Date</span> currentDate <span class="pl-k">=</span> legacyClock<span class="pl-k">.</span>date();
+    <span class="pl-c">//Use the Date object...</span>
+}
+
+<span class="pl-k">public</span> <span class="pl-k">void</span> javaOneDotOneMethod() {
+    <span class="pl-smi">Calendar</span> currentDateTime <span class="pl-k">=</span> legacyClock<span class="pl-k">.</span>zonedCalendar();
+    <span class="pl-c">//Use the Calendar object</span>
+}
+
+<span class="pl-k">public</span> <span class="pl-k">void</span> javaEightMethod() {
+  <span class="pl-smi">LocalDateTime</span> ldt <span class="pl-k">=</span> <span class="pl-smi">LocalDateTime</span><span class="pl-k">.</span>now(legacyClock);
+  <span class="pl-c">//Use the local date time...</span>
+}</pre></div>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
