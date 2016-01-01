@@ -57,10 +57,10 @@ import java.util.TimeZone;
  *
  *  public void timeMethod() {
  *  	//Later when calling a method using legacy Date objects...
- *  	LegacyDateAPICall.functionDependentOnDate(mLegacyClock.toDate());
+ *  	LegacyDateAPICall.functionDependentOnDate(mLegacyClock.date());
  *
  *  	//Later when calling a method using legacy Calendar objects
- *  	mCalendarBasedObjectToSave.setCurrentDateTime(mLegacyClock.toUTCCalendar());
+ *  	mCalendarBasedObjectToSave.setCurrentDateTime(mLegacyClock.utcCalendar());
  *  	mCalendarBasedObjectToSave.save();
  *
  *  	//Later when working with current date/time APIs
@@ -167,10 +167,10 @@ public final class LegacyClock extends Clock implements Serializable {
 	 * @return A new, non-null Calendar representing the same point in time time
 	 * as this Clock with a TimeZone of UTC.
 	 *
-	 * @see #toZonedCalendar() for a Calendar with an equivalent time-zone to
+	 * @see #zonedCalendar() for a Calendar with an equivalent time-zone to
 	 * this Clock set
 	 */
-	public Calendar toUTCCalendar() {
+	public Calendar utcCalendar() {
 		return new Calendar.Builder().setInstant(millis())
 									 .setTimeZone(TimeZone.getTimeZone("UTC"))
 									 .build();
@@ -188,9 +188,9 @@ public final class LegacyClock extends Clock implements Serializable {
 	 * @return A new, non-null Calendar representing the same point in time as
 	 * this Clock, in the same time-zone as this clock.
 	 *
-	 * @see #toUTCCalendar() for a Calendar within the UTC time-zone
+	 * @see #utcCalendar() for a Calendar within the UTC time-zone
 	 */
-	public Calendar toZonedCalendar() {
+	public Calendar zonedCalendar() {
 
 		return new Calendar.Builder()
 				.setInstant(millis())
@@ -209,10 +209,10 @@ public final class LegacyClock extends Clock implements Serializable {
 	 * @return A new, non-null Date object representing the same point in time
 	 * as this Clock
 	 *
-	 * @see #toTimestamp() for converting to a {@link Timestamp} object instead
+	 * @see #timestamp() for converting to a {@link Timestamp} object instead
 	 * of a Date object
 	 */
-	public Date toDate() {
+	public Date date() {
 		return new Date(millis());
 	}
 
@@ -226,7 +226,7 @@ public final class LegacyClock extends Clock implements Serializable {
 	 * @return A new, non-null Date object representing the same point in time
 	 * as this Clock
 	 */
-	public Timestamp toTimestamp() {
+	public Timestamp timestamp() {
 		return new Timestamp(millis());
 	}
 

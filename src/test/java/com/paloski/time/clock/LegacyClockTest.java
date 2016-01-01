@@ -33,6 +33,7 @@ import java.io.ObjectStreamException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.junit.Rule;
@@ -136,11 +137,12 @@ public class LegacyClockTest {
 
 		@DataPoints
 		public static String[] zones() {
-			return ZoneId.getAvailableZoneIds().toArray(new String[0]);
+			Set<String> availableZoneIds = ZoneId.getAvailableZoneIds();
+			return availableZoneIds.toArray(new String[availableZoneIds.size()]);
 		}
 
 		/**
-		 * Tests that the Date object created by {@link LegacyClock#toDate()} is
+		 * Tests that the Date object created by {@link LegacyClock#date()} is
 		 * equal to {@link Clock#instant()} on both the underlying and legacy
 		 * clock
 		 * 
@@ -157,13 +159,13 @@ public class LegacyClockTest {
 			LegacyClock fixedLegacyClock = LegacyClock.of(fixedPointUnderlyingClock);
 
 			// The date must equal the top level clocks instant
-			assertEquals(fixedLegacyClock.instant(), fixedLegacyClock.toDate().toInstant());
-			assertEquals(fixedPointUnderlyingClock.instant(), fixedLegacyClock.toDate().toInstant());
+			assertEquals(fixedLegacyClock.instant(), fixedLegacyClock.date().toInstant());
+			assertEquals(fixedPointUnderlyingClock.instant(), fixedLegacyClock.date().toInstant());
 		}
 
 		/**
 		 * Tests that the Timestamp object created by
-		 * {@link LegacyClock#toTimestamp()} is equal to {@link Clock#instant()}
+		 * {@link LegacyClock#timestamp()} is equal to {@link Clock#instant()}
 		 * on both the underlying and legacy clock
 		 * 
 		 * 
@@ -178,13 +180,13 @@ public class LegacyClockTest {
 			Clock fixedPointUnderlyingClock = Clock.fixed(Instant.ofEpochMilli(offsetFromEpoch), ZoneId.of(timeZone));
 			LegacyClock fixedLegacyClock = LegacyClock.of(fixedPointUnderlyingClock);
 
-			assertEquals(fixedLegacyClock.instant(), fixedLegacyClock.toTimestamp().toInstant());
-			assertEquals(fixedPointUnderlyingClock.instant(), fixedLegacyClock.toTimestamp().toInstant());
+			assertEquals(fixedLegacyClock.instant(), fixedLegacyClock.timestamp().toInstant());
+			assertEquals(fixedPointUnderlyingClock.instant(), fixedLegacyClock.timestamp().toInstant());
 		}
 
 		/**
 		 * Tests that the Calendar object created by
-		 * {@link LegacyClock#toUTCCalendar()()} is equal to
+		 * {@link LegacyClock#utcCalendar()()} is equal to
 		 * {@link Clock#instant()} on both the underlying and legacy clock and
 		 * has a time zone of UTC
 		 * 
@@ -200,15 +202,15 @@ public class LegacyClockTest {
 			Clock fixedPointUnderlyingClock = Clock.fixed(Instant.ofEpochMilli(offsetFromEpoch), ZoneId.of(timeZone));
 			LegacyClock fixedLegacyClock = LegacyClock.of(fixedPointUnderlyingClock);
 
-			assertEquals(fixedLegacyClock.instant(), fixedLegacyClock.toUTCCalendar().toInstant());
-			assertEquals(fixedPointUnderlyingClock.instant(), fixedLegacyClock.toUTCCalendar().toInstant());
+			assertEquals(fixedLegacyClock.instant(), fixedLegacyClock.utcCalendar().toInstant());
+			assertEquals(fixedPointUnderlyingClock.instant(), fixedLegacyClock.utcCalendar().toInstant());
 			// Test the calendar TimeZone
-			assertEquals(fixedLegacyClock.toUTCCalendar().getTimeZone(), TimeZone.getTimeZone("UTC"));
+			assertEquals(fixedLegacyClock.utcCalendar().getTimeZone(), TimeZone.getTimeZone("UTC"));
 		}
 
 		/**
 		 * Tests that the Calendar object created by
-		 * {@link LegacyClock#toZonedCalendar()} is equal to
+		 * {@link LegacyClock#zonedCalendar()} is equal to
 		 * {@link Clock#instant()} on both the underlying and legacy clock
 		 * 
 		 * 
@@ -223,10 +225,10 @@ public class LegacyClockTest {
 			Clock fixedPointUnderlyingClock = Clock.fixed(Instant.ofEpochMilli(offsetFromEpoch), ZoneId.of(timeZone));
 			LegacyClock fixedLegacyClock = LegacyClock.of(fixedPointUnderlyingClock);
 
-			assertEquals(fixedLegacyClock.instant(), fixedLegacyClock.toUTCCalendar().toInstant());
-			assertEquals(fixedPointUnderlyingClock.instant(), fixedLegacyClock.toUTCCalendar().toInstant());
+			assertEquals(fixedLegacyClock.instant(), fixedLegacyClock.utcCalendar().toInstant());
+			assertEquals(fixedPointUnderlyingClock.instant(), fixedLegacyClock.utcCalendar().toInstant());
 			// Test the calendar TimeZone
-			assertEquals(fixedLegacyClock.toZonedCalendar().getTimeZone(), TimeZone.getTimeZone(fixedLegacyClock.getZone()));
+			assertEquals(fixedLegacyClock.zonedCalendar().getTimeZone(), TimeZone.getTimeZone(fixedLegacyClock.getZone()));
 		}
 
 		/**
