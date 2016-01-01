@@ -82,7 +82,7 @@
 
 <p>But what if your code base ranges from brand new to ancient? You need to use Date, Calendar and LocalDate all stemming from the same time provider? </p>
 
-<p>A LegacyClock allows you to obtain millis UTC, Instants (and from them LocalDate, LocalDateTime, etc.), Date and Calendar objects all from one class via composition. </p>
+<p>A <a href="src/main/java/com/paloski/time/clock/LegacyClock.java">LegacyClock</a> allows you to obtain millis UTC, Instants (and from them LocalDate, LocalDateTime, etc.), Date and Calendar objects all from one class via composition. </p>
 
 <div class="highlight highlight-source-java"><pre><span class="pl-c">//Legacy clock uses the underlying data sources data and provides standard conversions to Calendar, etc.</span>
 <span class="pl-smi">LegacyClock</span> legacyClock <span class="pl-k">=</span> <span class="pl-smi">LegacyClock</span><span class="pl-k">.</span>of(<span class="pl-smi">CalendarClock</span><span class="pl-k">.</span>ofSupplier(<span class="pl-smi">ExternalSource</span><span class="pl-k">::</span>getCurrentTime, <span class="pl-smi">ZoneId</span><span class="pl-k">.</span>systemDefault()));
