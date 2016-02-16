@@ -129,7 +129,8 @@ public abstract class DateClock extends Clock {
 	 * {@code Serializable} providing that the underlying Supplier is.
 	 *
 	 * @param dateSupplier
-	 * 		A non-null Supplier that returns only non-null date objects.
+	 * 		A non-null Supplier that returns only non-null date objects. <em>This
+	 * 		Supplier must be thread safe to fulfill the contract of Clock</em>
 	 * @param zoneId
 	 * 		A non-null ZoneId that this cloak is situated in.
 	 *

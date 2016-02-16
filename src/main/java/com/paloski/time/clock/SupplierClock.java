@@ -171,7 +171,8 @@ public final class SupplierClock extends Clock implements Serializable {
 	 * @param millisecondSupplier
 	 * 		A non-null LongSupplier that supplies the number of
 	 * 		milliseconds since the epoch that this clock will return when
-	 * 		queried via {@link #millis()} and {@link #instant()}.
+	 * 		queried via {@link #millis()} and {@link #instant()}. <em>This
+	 * 		LongSupplier must be thread safe to fulfill the contract of Clock</em>
 	 * @param zoneId
 	 * 		The ZoneId of this Clock, as returned by {@link #getZone()}.
 	 *
@@ -199,7 +200,8 @@ public final class SupplierClock extends Clock implements Serializable {
 	 *
 	 * @param instantSupplier
 	 * 		A non-null Supplier that supplies the Instant that will be
-	 * 		returned when {@link #millis()} and {@link #instant()}.
+	 * 		returned when {@link #millis()} and {@link #instant()}.  <em>This
+	 * 		Supplier must be thread safe to fulfill the contract of Clock</em>
 	 * @param zoneId
 	 * 		The ZoneId of this Clock, as returned by {@link #getZone()}.
 	 *

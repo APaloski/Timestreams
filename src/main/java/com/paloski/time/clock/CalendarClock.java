@@ -120,7 +120,8 @@ public abstract class CalendarClock extends Clock {
 	 *
 	 * @param calendarSupplier
 	 * 		A non-null Supplier that returns only non-null Calendar
-	 * 		objects.
+	 * 		objects.  <em>This Supplier must be thread safe to fulfill
+	 * 		the contract of Clock</em>
 	 * @param zoneId
 	 * 		A non-null ZoneId that this cloak is situated in.
 	 *
